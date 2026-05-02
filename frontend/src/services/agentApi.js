@@ -1,4 +1,5 @@
 const JSON_HEADERS = { 'Content-Type': 'application/json' }
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001'
 
 async function parse(res) {
   const data = await res.json().catch(() => ({}))
@@ -7,7 +8,7 @@ async function parse(res) {
 }
 
 export async function postAgentMessage(text) {
-  const res = await fetch('/api/agent/message', {
+  const res = await fetch(`${API_URL}/api/agent/message`, {
     method: 'POST',
     headers: JSON_HEADERS,
     body: JSON.stringify({ text }),
@@ -17,7 +18,7 @@ export async function postAgentMessage(text) {
 }
 
 export async function suggestFix(payload) {
-  const res = await fetch('/api/agent/suggest-fix', {
+  const res = await fetch(`${API_URL}/api/agent/suggest-fix`, {
     method: 'POST',
     headers: JSON_HEADERS,
     body: JSON.stringify(payload),
@@ -26,7 +27,7 @@ export async function suggestFix(payload) {
 }
 
 export async function approveAgentProposal(proposalId, content) {
-  const res = await fetch('/api/agent/approve', {
+  const res = await fetch(`${API_URL}/api/agent/approve`, {
     method: 'POST',
     headers: JSON_HEADERS,
     body: JSON.stringify({ proposalId, content }),
@@ -36,24 +37,24 @@ export async function approveAgentProposal(proposalId, content) {
 }
 
 export async function fetchChatHistory() {
-  const res = await fetch('/api/agent/history')
+  const res = await fetch(`${API_URL}/api/agent/history`)
   return parse(res)
 }
 
 export async function fetchFileList() {
-  const res = await fetch('/api/files')
+  const res = await fetch(`${API_URL}/api/files`)
   const data = await parse(res)
   return data.files ?? []
 }
 
 export async function fetchFileContent(relPath) {
   const qp = encodeURIComponent(relPath)
-  const res = await fetch(`/api/files/contents?path=${qp}`)
+  const res = await fetch(`${API_URL}/api/files/contents?path=${qp}`)
   return parse(res)
 }
 
 export async function saveFileContent(relPath, content) {
-  const res = await fetch('/api/files/contents', {
+  const res = await fetch(`${API_URL}/api/files/contents`, {
     method: 'PUT',
     headers: JSON_HEADERS,
     body: JSON.stringify({ path: relPath, content }),
@@ -62,7 +63,7 @@ export async function saveFileContent(relPath, content) {
 }
 
 export async function execSnippet(language, code) {
-  const res = await fetch('/api/exec', {
+  const res = await fetch(`${API_URL}/api/exec`, {
     method: 'POST',
     headers: JSON_HEADERS,
     body: JSON.stringify({ language, code, sessionId: 'terminal' }),
@@ -71,7 +72,7 @@ export async function execSnippet(language, code) {
 }
 
 export async function sendTerminalInput(input) {
-  const res = await fetch('/api/input', {
+  const res = await fetch(`${API_URL}/api/input`, {
     method: 'POST',
     headers: JSON_HEADERS,
     body: JSON.stringify({ input, sessionId: 'terminal' }),
@@ -80,7 +81,7 @@ export async function sendTerminalInput(input) {
 }
 
 export function subscribeTerminalStream(onEvent) {
-  const stream = new EventSource('/api/exec/stream?sessionId=terminal')
+  const stream = new EventSource(`${API_URL}/api/exec/stream?sessionId=terminal`)
   stream.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data)
@@ -93,11 +94,11 @@ export function subscribeTerminalStream(onEvent) {
 }
 
 export async function resetWorkspace() {
-  const res = await fetch('/api/workspace/new', { method: 'POST' })
+  const res = await fetch(`${API_URL}/api/workspace/new`, { method: 'POST' })
   return parse(res)
 }
 
 export async function resetAgentSession() {
-  const res = await fetch('/api/reset', { method: 'POST' })
+  const res = await fetch(`${API_URL}/api/reset`, { method: 'POST' })
   return parse(res)
 }

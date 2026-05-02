@@ -11,8 +11,14 @@ const { writeStdin } = require('./tools/runtime')
 const app = express()
 const PORT = process.env.PORT || 5001
 
-app.use(cors())
+app.use(cors({
+  origin: "*"
+}))
 app.use(express.json({ limit: '2mb' }))
+
+app.get('/api/health', (_req, res) => {
+  res.json({ status: "ok" })
+})
 
 app.get('/health', (_req, res) => {
   res.json({ ok: true })
