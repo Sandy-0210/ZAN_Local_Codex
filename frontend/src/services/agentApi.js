@@ -1,5 +1,9 @@
 const JSON_HEADERS = { 'Content-Type': 'application/json' }
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001'
+const API_URL = import.meta.env.VITE_API_URL
+
+if (!API_URL) {
+  throw new Error('VITE_API_URL environment variable is not set. Please configure the backend URL.')
+}
 
 async function parse(res) {
   const data = await res.json().catch(() => ({}))
@@ -8,76 +12,110 @@ async function parse(res) {
 }
 
 export async function postAgentMessage(text) {
-  const res = await fetch(`${API_URL}/api/agent/message`, {
-    method: 'POST',
-    headers: JSON_HEADERS,
-    body: JSON.stringify({ text }),
-  })
-
-  return parse(res)
+  try {
+    const res = await fetch(`${API_URL}/api/agent/message`, {
+      method: 'POST',
+      headers: JSON_HEADERS,
+      body: JSON.stringify({ text }),
+    })
+    return parse(res)
+  } catch (err) {
+    throw new Error('Backend not connected. Please check server.')
+  }
 }
 
 export async function suggestFix(payload) {
-  const res = await fetch(`${API_URL}/api/agent/suggest-fix`, {
-    method: 'POST',
-    headers: JSON_HEADERS,
-    body: JSON.stringify(payload),
-  })
-  return parse(res)
+  try {
+    const res = await fetch(`${API_URL}/api/agent/suggest-fix`, {
+      method: 'POST',
+      headers: JSON_HEADERS,
+      body: JSON.stringify(payload),
+    })
+    return parse(res)
+  } catch (err) {
+    throw new Error('Backend not connected. Please check server.')
+  }
 }
 
 export async function approveAgentProposal(proposalId, content) {
-  const res = await fetch(`${API_URL}/api/agent/approve`, {
-    method: 'POST',
-    headers: JSON_HEADERS,
-    body: JSON.stringify({ proposalId, content }),
-  })
-
-  return parse(res)
+  try {
+    const res = await fetch(`${API_URL}/api/agent/approve`, {
+      method: 'POST',
+      headers: JSON_HEADERS,
+      body: JSON.stringify({ proposalId, content }),
+    })
+    return parse(res)
+  } catch (err) {
+    throw new Error('Backend not connected. Please check server.')
+  }
 }
 
 export async function fetchChatHistory() {
-  const res = await fetch(`${API_URL}/api/agent/history`)
-  return parse(res)
+  try {
+    const res = await fetch(`${API_URL}/api/agent/history`)
+    return parse(res)
+  } catch (err) {
+    throw new Error('Backend not connected. Please check server.')
+  }
 }
 
 export async function fetchFileList() {
-  const res = await fetch(`${API_URL}/api/files`)
-  const data = await parse(res)
-  return data.files ?? []
+  try {
+    const res = await fetch(`${API_URL}/api/files`)
+    const data = await parse(res)
+    return data.files ?? []
+  } catch (err) {
+    throw new Error('Backend not connected. Please check server.')
+  }
 }
 
 export async function fetchFileContent(relPath) {
-  const qp = encodeURIComponent(relPath)
-  const res = await fetch(`${API_URL}/api/files/contents?path=${qp}`)
-  return parse(res)
+  try {
+    const qp = encodeURIComponent(relPath)
+    const res = await fetch(`${API_URL}/api/files/contents?path=${qp}`)
+    return parse(res)
+  } catch (err) {
+    throw new Error('Backend not connected. Please check server.')
+  }
 }
 
 export async function saveFileContent(relPath, content) {
-  const res = await fetch(`${API_URL}/api/files/contents`, {
-    method: 'PUT',
-    headers: JSON_HEADERS,
-    body: JSON.stringify({ path: relPath, content }),
-  })
-  return parse(res)
+  try {
+    const res = await fetch(`${API_URL}/api/files/contents`, {
+      method: 'PUT',
+      headers: JSON_HEADERS,
+      body: JSON.stringify({ path: relPath, content }),
+    })
+    return parse(res)
+  } catch (err) {
+    throw new Error('Backend not connected. Please check server.')
+  }
 }
 
 export async function execSnippet(language, code) {
-  const res = await fetch(`${API_URL}/api/exec`, {
-    method: 'POST',
-    headers: JSON_HEADERS,
-    body: JSON.stringify({ language, code, sessionId: 'terminal' }),
-  })
-  return parse(res)
+  try {
+    const res = await fetch(`${API_URL}/api/exec`, {
+      method: 'POST',
+      headers: JSON_HEADERS,
+      body: JSON.stringify({ language, code, sessionId: 'terminal' }),
+    })
+    return parse(res)
+  } catch (err) {
+    throw new Error('Backend not connected. Please check server.')
+  }
 }
 
 export async function sendTerminalInput(input) {
-  const res = await fetch(`${API_URL}/api/input`, {
-    method: 'POST',
-    headers: JSON_HEADERS,
-    body: JSON.stringify({ input, sessionId: 'terminal' }),
-  })
-  return parse(res)
+  try {
+    const res = await fetch(`${API_URL}/api/input`, {
+      method: 'POST',
+      headers: JSON_HEADERS,
+      body: JSON.stringify({ input, sessionId: 'terminal' }),
+    })
+    return parse(res)
+  } catch (err) {
+    throw new Error('Backend not connected. Please check server.')
+  }
 }
 
 export function subscribeTerminalStream(onEvent) {
@@ -90,15 +128,26 @@ export function subscribeTerminalStream(onEvent) {
       //
     }
   }
+  stream.onerror = () => {
+    onEvent({ type: 'error', message: 'Backend connection lost' })
+  }
   return () => stream.close()
 }
 
 export async function resetWorkspace() {
-  const res = await fetch(`${API_URL}/api/workspace/new`, { method: 'POST' })
-  return parse(res)
+  try {
+    const res = await fetch(`${API_URL}/api/workspace/new`, { method: 'POST' })
+    return parse(res)
+  } catch (err) {
+    throw new Error('Backend not connected. Please check server.')
+  }
 }
 
 export async function resetAgentSession() {
-  const res = await fetch(`${API_URL}/api/reset`, { method: 'POST' })
-  return parse(res)
+  try {
+    const res = await fetch(`${API_URL}/api/reset`, { method: 'POST' })
+    return parse(res)
+  } catch (err) {
+    throw new Error('Backend not connected. Please check server.')
+  }
 }
