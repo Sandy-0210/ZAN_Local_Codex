@@ -10,6 +10,7 @@ function WorkspaceEditor({
   onRun,
   onFixCode,
   onCreateFileRequest,
+  onExport,
   runBusy,
   saveStatus,
   errorCount = 0,
@@ -37,6 +38,14 @@ function WorkspaceEditor({
             className="rounded-lg border border-slate-600 px-3 py-2 hover:border-emerald-300 disabled:opacity-35"
           >
             Save now
+          </button>
+          <button
+            type="button"
+            onClick={() => onExport?.()}
+            disabled={!contents.trim()}
+            className="rounded-lg border border-blue-600 px-3 py-2 hover:border-blue-400 disabled:opacity-35"
+          >
+            Export File
           </button>
           <button
             type="button"

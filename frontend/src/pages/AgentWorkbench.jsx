@@ -201,26 +201,31 @@ function AgentWorkbench() {
     }
   }, [editorContents, refreshFiles, selectedFile])
 
+  const handleExport = useCallback(() => {
+    if (!editorContents.trim()) return
+
+    const code = editorContents
+    const blob = new Blob([code], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+
+    const a = document.createElement('a')
+    a.href = url
+    a.download = selectedFile || 'code.py'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    // Optional: show toast
+    setTerminalLines((prev) => [...prev, { stream: 'stdout', line: 'File exported to Downloads' }])
+  }, [editorContents, selectedFile])
+
   useEffect(() => {
     void refreshFiles()
-    ;(async () => {
-      try {
-        const { histories } = await fetchChatHistory()
-        if (!histories?.length) return
-
-        const restored = histories
-          .filter((row) => row.role === 'user' || row.role === 'assistant')
-          .map((row) => ({
-            id: crypto.randomUUID(),
-            role: row.role === 'assistant' ? 'assistant' : 'user',
-            content: row.text,
-            trace: [],
-          }))
-        setMessages([welcomeMessage, ...restored])
-      } catch {
-        //
-      }
-    })()
+    // Auto-clear chat history on load (Codex style)
+    setMessages([welcomeMessage])
+    // Reset backend session
+    void resetAgentSession()
   }, [refreshFiles])
 
   useEffect(() => {
@@ -625,6 +630,7 @@ function AgentWorkbench() {
               onRun={handleRun}
               onFixCode={handleFixCode}
               onCreateFileRequest={handleNewFilePrompt}
+              onExport={handleExport}
               runBusy={runBusy}
               saveStatus={saveStatus}
               errorCount={editorDiagnostics.length}
