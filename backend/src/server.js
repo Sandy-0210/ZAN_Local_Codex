@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5050
 
 // ✅ CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "https://frontend-five-cyan-14.vercel.app/"
+  origin: process.env.FRONTEND_URL || '*'
 }))
 
 // ✅ JSON

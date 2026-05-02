@@ -40,7 +40,7 @@ export async function suggestFix(payload) {
     })
     return parse(res)
   } catch (err) {
-    throw new Error('Backend not connected. Please check server.')
+    handleFetchError(err)
   }
 }
 
@@ -156,6 +156,6 @@ export async function resetAgentSession() {
     const res = await fetch(`${API_URL}/api/reset`, { method: 'POST' })
     return parse(res)
   } catch (err) {
-    throw new Error('Backend not connected. Please check server.')
+    handleFetchError(err)
   }
 }
