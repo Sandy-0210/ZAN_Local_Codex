@@ -1,7 +1,9 @@
 const JSON_HEADERS = { 'Content-Type': 'application/json' }
-const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:5050' : undefined)
+const API_URL =
+  import.meta.env.VITE_API_URL ??
+  (import.meta.env.DEV ? 'http://localhost:5050' : undefined)
 
-if (!API_URL) {
+if (!API_URL && import.meta.env.PROD) {
   throw new Error('VITE_API_URL environment variable is not set. Please configure the backend URL.')
 }
 
