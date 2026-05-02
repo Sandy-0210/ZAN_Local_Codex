@@ -3,13 +3,20 @@ import remarkGfm from 'remark-gfm'
 import { useEffect, useRef, useState } from 'react'
 import DiffApproval from './DiffApproval'
 
-function Chat({ messages, onSend, pendingApproval, approveBusy, onApprove, onReject, agentThinking }) {
+function Chat({ messages, onSend, pendingApproval, approveBusy, onApprove, onReject, agentThinking, resetToken }) {
   const bottomRef = useRef(null)
+  const messagesRef = useRef(null)
   const [draft, setDraft] = useState('')
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, pendingApproval, agentThinking])
+
+  useEffect(() => {
+    if (!messagesRef.current) return
+    messagesRef.current.scrollTop = 0
+    setDraft('')
+  }, [resetToken])
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -26,7 +33,7 @@ function Chat({ messages, onSend, pendingApproval, approveBusy, onApprove, onRej
         <p className="text-base font-semibold text-slate-100">Chat & reasoning</p>
       </header>
 
-      <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+      <div ref={messagesRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
         {messages.map((message) => (
           <article
             key={message.id}

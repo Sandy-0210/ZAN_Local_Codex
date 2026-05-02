@@ -4,6 +4,8 @@ const agentRoutes = require('./routes/agentRoutes')
 const fileRoutes = require('./routes/fileRoutes')
 const execRoutes = require('./routes/execRoutes')
 const workspaceRoutes = require('./routes/workspaceRoutes')
+const { resetAgentBrain } = require('./routes/agentRegistry')
+const { resetRuntimeState } = require('./tools/runtime')
 const { writeStdin } = require('./tools/runtime')
 
 const app = express()
@@ -20,6 +22,15 @@ app.use('/api/agent', agentRoutes)
 app.use('/api/files', fileRoutes)
 app.use('/api/exec', execRoutes)
 app.use('/api/workspace', workspaceRoutes)
+app.post('/api/reset', async (_req, res) => {
+  try {
+    await resetRuntimeState()
+    await resetAgentBrain()
+    res.json({ ok: true })
+  } catch (error) {
+    res.status(500).json({ error: error.message ?? 'reset_failed' })
+  }
+})
 app.post('/api/input', (req, res) => {
   const { input, sessionId } = req.body ?? {}
   const result = writeStdin(sessionId ?? 'terminal', input ?? '')

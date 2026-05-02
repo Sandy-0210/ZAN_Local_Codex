@@ -96,3 +96,8 @@ export async function resetWorkspace() {
   const res = await fetch('/api/workspace/new', { method: 'POST' })
   return parse(res)
 }
+
+export async function resetAgentSession() {
+  const res = await fetch('/api/reset', { method: 'POST' })
+  return parse(res)
+}

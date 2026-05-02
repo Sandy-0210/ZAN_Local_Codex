@@ -74,6 +74,34 @@ function closeExistingProcess(sessionId) {
   activeProcesses.delete(id)
 }
 
+function stopAllProcesses() {
+  for (const [sessionId, active] of activeProcesses.entries()) {
+    if (active?.process) {
+      try {
+        active.process.kill('SIGTERM')
+      } catch {
+        //
+      }
+    }
+    activeProcesses.delete(sessionId)
+    emitRuntimeEvent(sessionId, { type: 'status', running: false, at: Date.now() })
+  }
+}
+
+async function clearTempSnippets() {
+  const dir = path.join(getWorkspaceRoot(), '.tmp_exec')
+  try {
+    await fs.rm(dir, { recursive: true, force: true })
+  } catch {
+    //
+  }
+}
+
+async function resetRuntimeState() {
+  stopAllProcesses()
+  await clearTempSnippets()
+}
+
 async function runCode(language, code, options = {}) {
   const lang = String(language || '').toLowerCase()
   const root = getWorkspaceRoot()
@@ -209,4 +237,5 @@ module.exports = {
   runCode,
   writeStdin,
   subscribeToRuntime,
+  resetRuntimeState,
 }

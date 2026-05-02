@@ -10,6 +10,7 @@ import {
   fetchFileContent,
   fetchFileList,
   postAgentMessage,
+  resetAgentSession,
   resetWorkspace,
   saveFileContent,
   sendTerminalInput,
@@ -142,6 +143,7 @@ function AgentWorkbench() {
   const [terminalInputSuggested, setTerminalInputSuggested] = useState(false)
   const [operationBusy, setOperationBusy] = useState(false)
   const [bottomTab, setBottomTab] = useState('chat')
+  const [chatResetToken, setChatResetToken] = useState(0)
   const lastPersistedRef = useRef('')
   const skipHydrateSave = useRef(false)
   const lastRuntimeErrorRef = useRef('')
@@ -522,6 +524,31 @@ function AgentWorkbench() {
     }
   }
 
+  const clearChat = async () => {
+    if (!window.confirm('Are you sure you want to clear chat?')) return
+
+    setOperationBusy(true)
+    try {
+      await resetAgentSession()
+      setMessages([welcomeMessage])
+      setTerminalLines([])
+      setAgentTraceLog([])
+      setPendingApproval(null)
+      setFixSuggestion(null)
+      setAgentThinking(false)
+      setApproveBusy(false)
+      setRunBusy(false)
+      setTerminalRunning(false)
+      setTerminalInputSuggested(false)
+      setBottomTab('chat')
+      setChatResetToken((prev) => prev + 1)
+    } catch (error) {
+      setTerminalLines((prev) => [...prev, { stream: 'stderr', line: error.message }])
+    } finally {
+      setOperationBusy(false)
+    }
+  }
+
   const handleNewFilePrompt = () => {
     const name = window.prompt('Relative path (e.g. src/app.js)', 'main.js')
     if (!name) return
@@ -546,6 +573,14 @@ function AgentWorkbench() {
         />
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-center justify-end gap-2 border-b border-slate-800 bg-slate-900/40 px-3 py-2 text-xs">
+            <button
+              type="button"
+              onClick={() => void clearChat()}
+              disabled={operationBusy}
+              className="rounded-lg border border-slate-700 px-3 py-1 text-slate-200 hover:border-slate-500 disabled:opacity-40"
+            >
+              Clear Chat
+            </button>
             <button
               type="button"
               onClick={() => setShowAgent((v) => !v)}
@@ -576,6 +611,7 @@ function AgentWorkbench() {
                 onApprove={fixSuggestion ? handleApplyFixSuggestion : handleApproveProposal}
                 onReject={fixSuggestion ? handleRejectFixSuggestion : handleRejectProposal}
                 agentThinking={agentThinking}
+                resetToken={chatResetToken}
               />
             )}
             <WorkspaceEditor

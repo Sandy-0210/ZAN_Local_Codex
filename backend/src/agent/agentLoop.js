@@ -2,6 +2,7 @@ const fs = require('fs/promises')
 const path = require('path')
 const { chat } = require('./ollamaClient')
 const { SYSTEM_PROMPT } = require('./systemPrompt')
+const { pendingApprovalById } = require('./pendingWrites')
 
 const CHAT_HISTORY_FILE = '.agent-chat.json'
 
