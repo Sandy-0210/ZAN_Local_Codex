@@ -1,5 +1,5 @@
 const JSON_HEADERS = { 'Content-Type': 'application/json' }
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:5050' : undefined)
 
 if (!API_URL) {
   throw new Error('VITE_API_URL environment variable is not set. Please configure the backend URL.')
@@ -11,6 +11,11 @@ async function parse(res) {
   return data
 }
 
+function handleFetchError(err) {
+  console.error('Backend not reachable', err)
+  throw new Error('Backend not connected. Please check server.')
+}
+
 export async function postAgentMessage(text) {
   try {
     const res = await fetch(`${API_URL}/api/agent/message`, {
@@ -20,7 +25,7 @@ export async function postAgentMessage(text) {
     })
     return parse(res)
   } catch (err) {
-    throw new Error('Backend not connected. Please check server.')
+    handleFetchError(err)
   }
 }
 
@@ -46,6 +51,7 @@ export async function approveAgentProposal(proposalId, content) {
     })
     return parse(res)
   } catch (err) {
+    console.error('Backend not reachable', err)
     throw new Error('Backend not connected. Please check server.')
   }
 }
@@ -55,7 +61,7 @@ export async function fetchChatHistory() {
     const res = await fetch(`${API_URL}/api/agent/history`)
     return parse(res)
   } catch (err) {
-    throw new Error('Backend not connected. Please check server.')
+    handleFetchError(err)
   }
 }
 
@@ -65,7 +71,7 @@ export async function fetchFileList() {
     const data = await parse(res)
     return data.files ?? []
   } catch (err) {
-    throw new Error('Backend not connected. Please check server.')
+    handleFetchError(err)
   }
 }
 
@@ -75,7 +81,7 @@ export async function fetchFileContent(relPath) {
     const res = await fetch(`${API_URL}/api/files/contents?path=${qp}`)
     return parse(res)
   } catch (err) {
-    throw new Error('Backend not connected. Please check server.')
+    handleFetchError(err)
   }
 }
 
@@ -88,7 +94,7 @@ export async function saveFileContent(relPath, content) {
     })
     return parse(res)
   } catch (err) {
-    throw new Error('Backend not connected. Please check server.')
+    handleFetchError(err)
   }
 }
 
@@ -101,7 +107,7 @@ export async function execSnippet(language, code) {
     })
     return parse(res)
   } catch (err) {
-    throw new Error('Backend not connected. Please check server.')
+    handleFetchError(err)
   }
 }
 
@@ -114,7 +120,7 @@ export async function sendTerminalInput(input) {
     })
     return parse(res)
   } catch (err) {
-    throw new Error('Backend not connected. Please check server.')
+    handleFetchError(err)
   }
 }
 
@@ -139,7 +145,7 @@ export async function resetWorkspace() {
     const res = await fetch(`${API_URL}/api/workspace/new`, { method: 'POST' })
     return parse(res)
   } catch (err) {
-    throw new Error('Backend not connected. Please check server.')
+    handleFetchError(err)
   }
 }
 
