@@ -1,4 +1,5 @@
 import MonacoEditor from '@monaco-editor/react'
+import { useRef } from 'react'
 import { detectRunLanguage, languageFromFilename } from '../lib/language'
 
 function WorkspaceEditor({
@@ -11,12 +12,45 @@ function WorkspaceEditor({
   onFixCode,
   onCreateFileRequest,
   onExport,
+  onImportFile,
   runBusy,
   saveStatus,
   errorCount = 0,
 }) {
   const language = languageFromFilename(activeFile ?? '')
   const runLang = detectRunLanguage(activeFile?.split('.').pop()?.toLowerCase() ?? 'js')
+  const fileInputRef = useRef(null)
+  const editorRef = useRef(null)
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    // File size limit
+    if (file.size > 1024 * 1024) { // 1MB
+      alert('File too large (max 1MB)')
+      return
+    }
+
+    // Supported types
+    const allowedExts = ['py', 'js', 'html', 'css', 'txt']
+    const ext = file.name.split('.').pop()?.toLowerCase()
+    if (!allowedExts.includes(ext)) {
+      alert('Unsupported file type. Allowed: .py, .js, .html, .css, .txt')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const content = e.target.result
+      // Update editor
+      editorRef.current?.setValue(content)
+      onChange(content)
+      // Update filename and clear state
+      onImportFile?.(file.name, content)
+    }
+    reader.readAsText(file)
+  }
 
   const statusLabel =
     saveStatus === 'saving' ? 'Saving…' : saveStatus === 'error' ? 'Save failed' : saveStatus === 'saved' ? 'Autosaved ✓' : 'Ready'
@@ -49,6 +83,13 @@ function WorkspaceEditor({
           </button>
           <button
             type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="rounded-lg border border-purple-600 px-3 py-2 hover:border-purple-400"
+          >
+            Import File
+          </button>
+          <button
+            type="button"
             onClick={() => onCreateFileRequest?.()}
             className="rounded-lg border border-blue-900/70 bg-blue-900/60 px-3 py-2 text-white hover:bg-blue-800"
           >
@@ -76,6 +117,14 @@ function WorkspaceEditor({
         </span>
       </header>
 
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        onChange={handleFileUpload}
+        accept=".py,.js,.html,.css,.txt"
+      />
+
       <div className="flex-1 min-h-[320px]">
         {!activeFile && (
           <div className="flex h-full items-center px-10 text-center text-sm text-slate-400">
@@ -92,6 +141,9 @@ function WorkspaceEditor({
             onChange={(value) => onChange(typeof value === 'string' ? value : '')}
             onValidate={(markers) => {
               onDiagnosticsChange?.(markers)
+            }}
+            onMount={(editor) => {
+              editorRef.current = editor
             }}
             options={{
               fontSize: 13,

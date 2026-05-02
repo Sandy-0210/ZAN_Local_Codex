@@ -220,6 +220,16 @@ function AgentWorkbench() {
     setTerminalLines((prev) => [...prev, { stream: 'stdout', line: 'File exported to Downloads' }])
   }, [editorContents, selectedFile])
 
+  const handleImportFile = useCallback((filename, content) => {
+    setSelectedFile(filename)
+    setEditorContents(content)
+    setTerminalLines([])
+    lastRuntimeErrorRef.current = ''
+    setEditorDiagnostics([])
+    // Show success message
+    setTerminalLines((prev) => [...prev, { stream: 'stdout', line: `File "${filename}" imported successfully` }])
+  }, [])
+
   useEffect(() => {
     void refreshFiles()
     // Auto-clear chat history on load (Codex style)
@@ -631,6 +641,7 @@ function AgentWorkbench() {
               onFixCode={handleFixCode}
               onCreateFileRequest={handleNewFilePrompt}
               onExport={handleExport}
+              onImportFile={handleImportFile}
               runBusy={runBusy}
               saveStatus={saveStatus}
               errorCount={editorDiagnostics.length}
