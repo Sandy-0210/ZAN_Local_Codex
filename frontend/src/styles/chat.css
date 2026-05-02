@@ -1,0 +1,48 @@
+.message-enter {
+  animation: messageFadeIn 220ms ease-out;
+}
+
+@keyframes messageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+code[class*='language-'],
+pre[class*='language-'] {
+  color: #dbeafe;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #64748b;
+}
+
+.token.punctuation {
+  color: #cbd5e1;
+}
+
+.token.keyword {
+  color: #7dd3fc;
+}
+
+.token.string {
+  color: #86efac;
+}
+
+.token.function {
+  color: #c4b5fd;
+}
+
+.token.number,
+.token.boolean {
+  color: #fca5a5;
+}
