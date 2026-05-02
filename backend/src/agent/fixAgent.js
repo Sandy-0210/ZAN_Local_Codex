@@ -17,7 +17,8 @@ async function suggestFix({ filename, code, error, diagnostics = [] }) {
     '- Do NOT explain',
     '- Do NOT return partial code',
     '- Do NOT return JSON',
-    '- ONLY return code inside ```python block',
+    '- Return ONLY code, no markdown formatting',
+    '- Do NOT include ``` or language markers',
     '',
     `filename: ${filename}`,
     `runtime_error: ${error || ''}`,
@@ -27,7 +28,7 @@ async function suggestFix({ filename, code, error, diagnostics = [] }) {
   ].join('\n')
 
   const { content } = await chat([
-    { role: 'system', content: 'Return ONLY the fixed full code inside triple backticks. Do not return JSON.' },
+    { role: 'system', content: 'Return ONLY the fixed full code. Do not include markdown, backticks, or explanations. Just the raw code.' },
     { role: 'user', content: fixPrompt },
   ])
 

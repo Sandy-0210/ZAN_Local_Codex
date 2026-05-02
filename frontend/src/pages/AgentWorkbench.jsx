@@ -17,6 +17,7 @@ import {
   suggestFix,
   subscribeTerminalStream,
 } from '../services/agentApi'
+import { extractCode } from '../lib/language'
 
 const initialAssistantId = crypto.randomUUID()
 
@@ -293,7 +294,7 @@ function AgentWorkbench() {
           proposalId: crypto.randomUUID(),
           filename: fix.file || selectedFile,
           before: editorContents,
-          after: fix.fixed_code,
+          after: extractCode(fix.fixed_code),
           thought: fix.summary,
           actionType: 'suggest_fix',
         })
@@ -437,12 +438,13 @@ function AgentWorkbench() {
   const handleApplyFixSuggestion = async (fixedCode) => {
     if (!fixSuggestion || !selectedFile) return
     setFixBusy(true)
-    setEditorContents(fixedCode)
+    const cleanCode = extractCode(fixedCode)
+    setEditorContents(cleanCode)
     setFixSuggestion(null)
     setSaveStatus('saving')
     try {
-      await saveFileContent(selectedFile, fixedCode)
-      lastPersistedRef.current = fixedCode
+      await saveFileContent(selectedFile, cleanCode)
+      lastPersistedRef.current = cleanCode
       setSaveStatus('saved')
       appendAssistantBubble('Fix suggestion ready. Code updated.', [])
       applyAgentTerminal([{ stream: 'stdout', line: 'Code updated' }])

@@ -25,3 +25,17 @@ export function detectRunLanguage(ext) {
   if (['py'].includes(ext)) return 'python'
   return 'javascript'
 }
+
+export function extractCode(text) {
+  const raw = String(text ?? '')
+  // Match ```language\ncode\n```
+  const match = raw.match(/```[a-z]*\n([\s\S]*?)```/i)
+  if (match && match[1]) {
+    return match[1].trim()
+  }
+  // Failsafe: remove stray markers
+  return raw
+    .replace(/```[a-z]*/gi, '')
+    .replace(/```/g, '')
+    .trim()
+}

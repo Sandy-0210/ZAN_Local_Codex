@@ -1,9 +1,9 @@
 import { DiffEditor } from '@monaco-editor/react'
 import { useState } from 'react'
-import { languageFromFilename } from '../lib/language'
+import { languageFromFilename, extractCode } from '../lib/language'
 
 function DiffApproval({ pending, onApprove, onReject, busy }) {
-  const [draft, setDraft] = useState(() => pending.after ?? '')
+  const [draft, setDraft] = useState(() => extractCode(pending.after ?? ''))
 
   const monacoLang = languageFromFilename(pending.filename)
 

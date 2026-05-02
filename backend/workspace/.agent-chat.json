@@ -158,5 +158,21 @@
   {
     "role": "assistant",
     "text": "Let's start fresh! I'll clear our conversation history.\n\nFrom now on, we can begin a new topic or continue with your previous request. What would you like to do?"
+  },
+  {
+    "role": "user",
+    "text": "clear"
+  },
+  {
+    "role": "assistant",
+    "text": "The \"clear\" command!\n\nIn most operating systems, you can clear the terminal screen using a combination of commands. Here are a few examples:\n\n**For Unix-based systems (e.g., Linux, macOS):**\n```bash\nclear\n```\nor:\n```bash\n\\c\n```\n\n**For Windows:**\n```batch\ncls\n```\n\nThese commands will immediately clear the terminal screen, leaving you with a fresh start!"
+  },
+  {
+    "role": "user",
+    "text": "/c"
+  },
+  {
+    "role": "assistant",
+    "text": "The classic \"/c\" command!\n\nYou want to see some C programming code, right?\n\nWhat would you like me to help you with? Do you have a specific problem or task in mind? Let me know and I'll do my best to provide a helpful response!"
   }
 ]
